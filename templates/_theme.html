@@ -1,0 +1,300 @@
+<style>
+  /* ---- DoneJi app theme · clean SaaS, light ---- */
+  :root {
+    --ds-accent: var(--app-accent, #4f46e5);
+    --ds-accent-soft: var(--app-accent-soft, #eef2ff);
+    --ds-ink: #0f172a;
+    --ds-ink-muted: #475569;
+    --ds-ink-subtle: #94a3b8;
+    --ds-bg: #f6f7fb;
+    --ds-surface: #ffffff;
+    --ds-line: #e2e8f0;
+    --ds-radius: 1rem;
+    --ds-radius-sm: .65rem;
+    --ds-shadow: 0 1px 2px rgba(15, 23, 42, .05), 0 8px 24px -12px rgba(15, 23, 42, .12);
+    --ds-shadow-lift: 0 2px 4px rgba(15, 23, 42, .06), 0 16px 32px -12px rgba(15, 23, 42, .18);
+  }
+
+  body {
+    background: var(--ds-bg);
+    color: var(--ds-ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  main.container { max-width: 1100px; flex: 1; }
+  ::selection { background: color-mix(in srgb, var(--ds-accent) 22%, white); }
+  a { color: var(--ds-accent); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--ds-accent); outline-offset: 2px; border-radius: 4px; }
+
+  /* ---- nav ---- */
+  .ds-nav {
+    background: var(--ds-surface);
+    border-bottom: 1px solid var(--ds-line);
+    padding-block: .7rem;
+    margin-bottom: 1.75rem;
+  }
+  .ds-nav .navbar-brand {
+    font-weight: 700;
+    letter-spacing: -.015em;
+    color: var(--ds-ink);
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .ds-nav .navbar-brand::before {
+    content: "";
+    width: .55rem;
+    height: .55rem;
+    border-radius: 50%;
+    background: var(--ds-accent);
+    box-shadow: 0 0 0 4px var(--ds-accent-soft);
+  }
+
+  /* ---- buttons: Bootstrap re-tinted through its own variables ---- */
+  .btn { border-radius: var(--ds-radius-sm); font-weight: 600; }
+  .btn-primary {
+    --bs-btn-bg: var(--ds-accent);
+    --bs-btn-border-color: var(--ds-accent);
+    --bs-btn-hover-bg: color-mix(in srgb, var(--ds-accent) 86%, black);
+    --bs-btn-hover-border-color: color-mix(in srgb, var(--ds-accent) 86%, black);
+    --bs-btn-active-bg: color-mix(in srgb, var(--ds-accent) 78%, black);
+    --bs-btn-active-border-color: color-mix(in srgb, var(--ds-accent) 78%, black);
+    --bs-btn-disabled-bg: color-mix(in srgb, var(--ds-accent) 45%, white);
+    --bs-btn-disabled-border-color: transparent;
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--ds-accent) 35%, transparent);
+  }
+  .btn-outline-primary {
+    --bs-btn-color: var(--ds-accent);
+    --bs-btn-border-color: color-mix(in srgb, var(--ds-accent) 45%, white);
+    --bs-btn-hover-bg: var(--ds-accent-soft);
+    --bs-btn-hover-color: var(--ds-accent);
+    --bs-btn-hover-border-color: var(--ds-accent);
+    --bs-btn-active-bg: var(--ds-accent);
+    --bs-btn-active-border-color: var(--ds-accent);
+  }
+  .btn-outline-secondary { --bs-btn-border-color: var(--ds-line); --bs-btn-color: var(--ds-ink-muted); }
+
+  /* ---- forms ---- */
+  .form-control, .form-select {
+    border-radius: var(--ds-radius-sm);
+    border-color: var(--ds-line);
+    padding: .55rem .8rem;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: var(--ds-accent);
+    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--ds-accent) 18%, transparent);
+  }
+  .form-label { font-weight: 600; font-size: .85rem; color: var(--ds-ink-muted); }
+
+  /* ---- cards ---- */
+  .card {
+    border: 0;
+    border-radius: var(--ds-radius);
+    box-shadow: var(--ds-shadow);
+    overflow: hidden;
+    background: var(--ds-surface);
+  }
+  .card-body { padding: 1.15rem 1.25rem; }
+  .ds-lift { transition: transform .16s ease, box-shadow .16s ease; }
+  .ds-lift:hover { transform: translateY(-2px); box-shadow: var(--ds-shadow-lift); }
+
+  /* ---- tables ---- */
+  .table {
+    --bs-table-bg: var(--ds-surface);
+    border-radius: var(--ds-radius);
+    overflow: hidden;
+    box-shadow: var(--ds-shadow);
+  }
+  .table thead th {
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--ds-ink-subtle);
+    background: color-mix(in srgb, var(--ds-accent-soft) 45%, white);
+    border-bottom: 1px solid var(--ds-line);
+    padding: .7rem .9rem;
+  }
+  .table td { padding: .75rem .9rem; vertical-align: middle; }
+  /* Every empty state in the starters is a td[colspan] — styled here so no
+     authored empty-state line ever needs a class added to it. */
+  .table td[colspan] { text-align: center; padding: 2.6rem 1rem; color: var(--ds-ink-subtle); }
+
+  /* ---- page furniture ---- */
+  .ds-hero {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--ds-accent) 14%, white),
+      color-mix(in srgb, var(--ds-accent) 4%, white));
+    border-radius: calc(var(--ds-radius) + .25rem);
+    padding: 1.9rem 1.9rem 1.6rem;
+    margin-bottom: 1.75rem;
+  }
+  .ds-hero h1 { font-weight: 750; letter-spacing: -.02em; font-size: clamp(1.45rem, 3vw, 2rem); }
+  .eyebrow {
+    font-size: .74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--ds-accent);
+    margin-bottom: .3rem;
+  }
+  .sub { color: var(--ds-ink-muted); max-width: 56ch; }
+  .page-head { margin-bottom: 1.4rem; }
+  .page-head h1 { font-weight: 750; letter-spacing: -.02em; }
+
+  /* ---- layout widths ---- */
+  .ds-auth { max-width: 420px; margin: 3rem auto 0; }
+  .ds-narrow { max-width: 640px; margin-inline: auto; }
+
+  /* ---- media ---- */
+  .ds-photo {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--ds-radius-sm);
+    background: var(--ds-accent-soft);
+  }
+  .card > .ds-photo { border-radius: 0; }
+  .ds-tile { width: 3.4rem; height: 3.4rem; border-radius: .9rem; flex-shrink: 0; }
+  .ds-tile text { font-weight: 700; font-size: 1.5rem; font-family: inherit; }
+  .ds-thumb { width: 2.9rem; height: 2.9rem; object-fit: cover; border-radius: .7rem; }
+
+  /* ---- badges & alerts ---- */
+  .badge { font-weight: 600; border-radius: 999px; padding: .38em .75em; }
+  .ds-badge { background: var(--ds-accent); color: #fff; }
+  .ds-badge-soft { background: var(--ds-accent-soft); color: var(--ds-accent); }
+  .badge.bg-secondary { background: var(--ds-accent) !important; }
+  .badge.bg-light { background: var(--ds-accent-soft) !important; color: var(--ds-accent) !important; }
+  .alert { border: 0; border-radius: var(--ds-radius-sm); }
+  .alert-warning { background: #fef3c7; color: #92400e; }
+
+  /* ---- dashboard ---- */
+  /* The owner's landing page: four numbers, a week, a queue, a feed. Every
+     dashboard plots ONE series, so there is one hue and no legend — the panel
+     heading names what is plotted. Bars carry the accent; every label stays in
+     an ink token, because a light accent is illegible as text. */
+  .ds-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .ds-stat {
+    background: var(--ds-surface);
+    border-radius: var(--ds-radius);
+    box-shadow: var(--ds-shadow);
+    padding: 1.1rem 1.2rem;
+  }
+  .ds-stat-label {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--ds-ink-subtle);
+    margin-bottom: .35rem;
+  }
+  /* Proportional figures on purpose. tabular-nums gives every digit the width
+     of a zero, which makes a number like 121 look loose at this size; it is
+     for columns that must line up, not for a standalone headline. */
+  .ds-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    color: var(--ds-ink);
+  }
+  .ds-stat-foot { font-size: .78rem; color: var(--ds-ink-muted); margin: .3rem 0 0; }
+
+  .ds-panel {
+    background: var(--ds-surface);
+    border-radius: var(--ds-radius);
+    box-shadow: var(--ds-shadow);
+    padding: 1.15rem 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .ds-panel > h2 {
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--ds-ink-subtle);
+    margin-bottom: .9rem;
+  }
+
+  /* The seven-day strip. The 2px gap is what separates the bars — never draw a
+     border round a bar to do it. The unfilled track is a lighter step of the
+     same ramp, so a day with nothing reads as empty rather than as a hole. */
+  .ds-week { display: flex; align-items: flex-end; gap: 2px; height: 6rem; }
+  .ds-week-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: var(--ds-accent-soft);
+    border-radius: .35rem .35rem 0 0;
+  }
+  /* Capped, not filling its slot: the leftover is air. Rounded at the data
+     end, square where it meets the baseline. */
+  .ds-week-bar {
+    width: 100%;
+    max-width: 24px;
+    margin-inline: auto;
+    min-height: 2px;
+    background: var(--ds-accent);
+    border-radius: 4px 4px 0 0;
+  }
+  .ds-week-axis {
+    display: flex;
+    gap: 2px;
+    margin-top: .4rem;
+    padding-top: .4rem;
+    border-top: 1px solid var(--ds-line);
+  }
+  .ds-week-day { flex: 1; text-align: center; font-size: .68rem; color: var(--ds-ink-subtle); }
+  /* The count rides the axis rather than a hover tooltip. A value you can only
+     reach by hovering is a value the page does not really show — and on a
+     phone there is no hover at all. */
+  .ds-week-n {
+    display: block;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--ds-ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .ds-week-peak { font-size: .72rem; color: var(--ds-ink-muted); margin: .6rem 0 0; }
+
+  /* The two lists every dashboard ends with: what needs doing, what just happened. */
+  .ds-queue, .ds-feed { list-style: none; margin: 0; padding: 0; }
+  .ds-queue-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem 0;
+    border-bottom: 1px solid var(--ds-line);
+  }
+  .ds-queue-item:last-child { border-bottom: 0; }
+  .ds-feed-item { display: flex; gap: .7rem; padding: .55rem 0; font-size: .85rem; }
+  .ds-feed-dot {
+    width: .5rem;
+    height: .5rem;
+    border-radius: 999px;
+    background: var(--ds-accent);
+    box-shadow: 0 0 0 3px var(--ds-accent-soft);
+    margin-top: .45rem;
+    flex-shrink: 0;
+  }
+  /* The non-table twin of the .table td[colspan] empty state. */
+  .ds-empty { padding: 2.2rem 1rem; text-align: center; color: var(--ds-ink-subtle); }
+
+  /* ---- footer ---- */
+  .ds-footer {
+    text-align: center;
+    color: var(--ds-ink-subtle);
+    font-size: .78rem;
+    padding: 2.25rem 1rem 1.25rem;
+  }
+</style>

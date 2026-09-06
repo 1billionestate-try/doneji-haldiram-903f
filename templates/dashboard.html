@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}{{ dash.title or "Dashboard" }}{% endblock %}
+{% block content %}
+  {# The panel is a shared partial; what it shows comes from dashboard_stats()
+     in app.py. Add your own sections around this include. #}
+  {% include "_dashboard.html" %}
+{% endblock %}

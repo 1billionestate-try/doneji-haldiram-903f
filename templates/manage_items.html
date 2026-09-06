@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Manage menu{% endblock %}
+{% block content %}
+  <header class="page-head">
+    <p class="eyebrow">Owner</p>
+    <h1 class="h4 mb-0">Manage menu</h1>
+  </header>
+
+    {% if image_error %}<div class="alert alert-warning">{{ image_error }}</div>{% endif %}
+
+    <form method="post" class="card card-body mb-4">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label">New item</label>
+          <input class="form-control" type="text" name="name" placeholder="e.g. Paneer Roll" required />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Category</label>
+          <input class="form-control" type="text" name="category" placeholder="e.g. Snacks" required />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Price</label>
+          <input class="form-control" type="number" name="price" min="0" step="0.5" required />
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-primary w-100">Add</button>
+        </div>
+      </div>
+    </form>
+
+    <table class="table table-hover align-middle">
+      <thead><tr><th>Item</th><th>Category</th><th class="text-end">Price</th><th>Photo link</th><th>On menu?</th><th></th></tr></thead>
+      <tbody>
+        {% for i in items %}
+          <tr>
+            <td class="d-flex align-items-center gap-2">
+              {% if i.image_url %}
+                <img class="ds-thumb" src="{{ i.image_url }}" alt="{{ i.name }}" loading="lazy" />
+              {% elif stock_photo is defined and stock_photo(i.name) %}
+                <img class="ds-thumb" src="{{ stock_photo(i.name) }}" alt="{{ i.name }}" loading="lazy" />
+              {% else %}
+                <svg class="ds-thumb" viewBox="0 0 64 64" aria-hidden="true">
+                  <rect width="64" height="64" fill="var(--app-accent-soft)" />
+                  <text x="32" y="42" text-anchor="middle" font-size="28" font-weight="700"
+                        font-family="inherit" fill="var(--app-accent)">{{ i.name[:1]|upper }}</text>
+                </svg>
+              {% endif %}
+              {{ i.name }}
+            </td>
+            <td class="text-muted">{{ i.category }}</td>
+            <td class="text-end">&#8377;{{ i.price }}</td>
+            <td style="min-width: 240px;">
+              {# Right-click any food photo on the web, choose "Copy image
+                 address" and paste it here. Saving an empty box brings the
+                 placeholder back. #}
+              <form method="post" action="/manage/items/{{ i.id }}/image" class="d-flex gap-1">
+                <input class="form-control form-control-sm" type="url" name="image_url"
+                       value="{{ i.image_url or '' }}" placeholder="https:// image link" />
+                <button class="btn btn-sm btn-outline-secondary">Save</button>
+              </form>
+            </td>
+            <td>
+              {% if i.is_available %}<span class="badge bg-success">Available</span>
+              {% else %}<span class="badge bg-secondary">Hidden</span>{% endif %}
+            </td>
+            <td class="text-end">
+              <form method="post" action="/manage/items/{{ i.id }}/toggle" class="d-inline">
+                <button class="btn btn-sm btn-outline-secondary">{{ 'Hide' if i.is_available else 'Show' }}</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-muted">No items yet — add the first one above.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+{% endblock %}

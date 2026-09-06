@@ -1,0 +1,70 @@
+{# The dashboard panel. Everything it shows comes from dashboard_stats()
+   in app.py — this file is only the shape. #}
+<header class="page-head">
+  {% if dash.eyebrow %}<p class="eyebrow">{{ dash.eyebrow }}</p>{% endif %}
+  <h1 class="h4 mb-0">{{ dash.title or "Dashboard" }}</h1>
+</header>
+
+{% if dash.actions %}
+  {# The owner's guaranteed navigation: these render on an empty database too,
+     so the dashboard is never a dead end. #}
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    {% for a in dash.actions %}
+      <a class="btn btn-sm {{ 'btn-primary' if loop.first else 'btn-outline-primary' }}" href="{{ a.href }}">{{ a.label }}</a>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if dash.stats %}
+  <div class="ds-stats">
+    {% for s in dash.stats %}
+      <div class="ds-stat">
+        <div class="ds-stat-label">{{ s.label }}</div>
+        <div class="ds-stat-value">{{ s.value }}</div>
+        {% if s.foot %}<p class="ds-stat-foot">{{ s.foot }}</p>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if dash.week and dash.week.days %}
+  <section class="ds-panel">
+    <h2>{{ dash.week.title or "Last 7 days" }}</h2>
+    {# Each bar is a percentage of the busiest day, worked out in app.py. The
+       count sits under the day, not in a hover tooltip — a phone has no hover,
+       and a number nobody can read is not really on the page. #}
+    <div class="ds-week">
+      {% for d in dash.week.days %}
+        <div class="ds-week-col" title="{{ d.label }}: {{ d.n }}">
+          <div class="ds-week-bar" style="height: {{ d.pct }}%"></div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="ds-week-axis">
+      {% for d in dash.week.days %}
+        <span class="ds-week-day">{{ d.label }}<span class="ds-week-n">{{ d.n }}</span></span>
+      {% endfor %}
+    </div>
+    {% if dash.week.note %}<p class="ds-week-peak">{{ dash.week.note }}</p>{% endif %}
+  </section>
+{% endif %}
+
+{% for panel in dash.panels or [] %}
+  <section class="ds-panel">
+    <h2>{{ panel.title }}</h2>
+    <ul class="ds-queue">
+      {% for row in panel.rows %}
+        <li class="ds-queue-item">
+          {% if row.badge %}<span class="badge ds-badge-soft">{{ row.badge }}</span>{% endif %}
+          <span class="flex-grow-1">{{ row.text }}</span>
+          {% if row.meta %}<span class="text-muted">{{ row.meta }}</span>{% endif %}
+          {% if row.href %}
+            <a class="btn btn-sm btn-outline-primary" href="{{ row.href }}">{{ row.action or "Open" }}</a>
+          {% endif %}
+        </li>
+      {% else %}
+        <li class="ds-empty">{{ panel.empty or "Nothing here yet." }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endfor %}

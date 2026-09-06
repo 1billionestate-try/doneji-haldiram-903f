@@ -1,0 +1,7 @@
+# Real secrets live in .env.local and on the host — never in git.
+.env
+.env.local
+__pycache__/
+*.pyc
+.venv/
+venv/

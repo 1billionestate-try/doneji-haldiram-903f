@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="ds-auth">
+    <h1 class="h4 mb-3">Become a Haldiram member</h1>
+    {% if error %}<div class="alert alert-warning">{{ error }}</div>{% endif %}
+    <form method="post" class="card card-body">
+      <label class="form-label">Name</label>
+      <input class="form-control mb-3" type="text" name="name" required />
+ 
+      <label class="form-label">Phone number</label>
+      <input class="form-control mb-3" type="tel" name="phone" pattern="[0-9]{10}" placeholder="10 digits" required />
+
+      <label class="form-label">Password</label>
+      <input class="form-control mb-3" type="password" name="password" minlength="8" required />
+
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" name="role" value="owner" id="role" />
+        <label class="form-check-label" for="role">I run the counter (owner account)</label>
+      </div>
+
+      <button class="btn btn-primary">Register</button>
+    </form>
+</div>
+{% endblock %}

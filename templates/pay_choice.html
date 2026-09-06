@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Order placed{% endblock %}
+{% block content %}
+<div class="ds-narrow">
+  <header class="ds-hero">
+    <p class="eyebrow">Order #{{ order.id }}</p>
+    <h1 class="h4 mb-1">Order placed!</h1>
+    <p class="sub mb-0">{{ order.summary }} &mdash; &#8377;{{ order.total }}</p>
+  </header>
+
+  {% if payment and payment.status == 'verified' %}
+    <div class="alert alert-success">
+      Paid &#8377;{{ payment.amount }}{{ ' by UPI' if payment.claimed_ref else ' in cash' }}. Nothing more to do.
+    </div>
+  {% else %}
+    {% if not locked and pay_enabled %}
+      {# The money question. Two buttons, one POST — the choice is saved on the
+         order itself, so the counter knows what to expect. It stays changeable
+         until a payment is claimed or verified. The cash label follows the
+         order's fulfillment: a delivery customer is never told to visit a
+         counter (Bharatiya Dhaba, 2026-09-02). #}
+      <p class="text-muted mb-2">How would you like to pay?</p>
+      <form method="post" action="/orders/{{ order.id }}/pay/method" class="d-flex flex-wrap gap-2 mb-3">
+        <button class="btn {{ 'btn-primary' if method == 'upi' else 'btn-outline-primary' }}" name="method" value="upi">Pay now by UPI</button>
+        <button class="btn {{ 'btn-primary' if method == 'counter' else 'btn-outline-primary' }}" name="method" value="counter">{{ 'Pay cash on delivery' if order.fulfillment == 'delivery' else 'Pay at the counter' }}</button>
+      </form>
+    {% endif %}
+
+    {% if method == 'upi' and pay_enabled %}
+      {% include "_pay.html" %}
+    {% elif method == 'counter' %}
+      <div class="card card-body">
+        {% if order.fulfillment == 'delivery' %}
+          <h2 class="h6 mb-1">Pay cash on delivery</h2>
+          <p class="text-muted mb-0">Keep &#8377;{{ order.total }} ready — pay when order #{{ order.id }} arrives.</p>
+        {% else %}
+          <h2 class="h6 mb-1">Pay at the counter</h2>
+          <p class="text-muted mb-0">Show order #{{ order.id }} when you collect, and pay &#8377;{{ order.total }} there.</p>
+        {% endif %}
+      </div>
+    {% else %}
+      <p class="text-muted">Pick one above — your order is already in the kitchen either way.</p>
+    {% endif %}
+  {% endif %}
+
+  <p class="mt-3 mb-0"><a href="/orders">Track this order under My orders &rarr;</a></p>
+</div>
+{% endblock %}

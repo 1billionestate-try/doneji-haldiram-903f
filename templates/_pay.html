@@ -1,0 +1,89 @@
+{# The payment panel, included by both sides of the transaction.
+
+   mode='customer' shows the QR and the reference box.
+   mode='owner'    shows what the customer claimed, and the two decisions.
+
+   A partial, not a page: it has no {% extends %} because the page that
+   includes it already has one. #}
+{% if pay_enabled and mode is not defined %}
+  {# Loud on purpose. Without mode the branches below silently render the
+     WRONG side — a customer once saw the owner's "Not paid yet" instead of
+     the QR. Validation catches a model that drops the kwarg; this strip
+     catches a hand edit. #}
+  <div class="alert alert-danger">
+    templates/_pay.html was included without <code>mode=</code> — render this page
+    with <code>mode='customer'</code> (the payer's side) or <code>mode='owner'</code>
+    (the checker's side) from app.py.
+  </div>
+{% endif %}
+{% if pay_enabled %}
+  <div class="ds-panel">
+    {% if mode == 'customer' %}
+      {% if not payment or payment.status in ['awaiting', 'rejected'] %}
+        <h2>Pay by UPI</h2>
+        <p class="mb-2">Pay <strong>&#8377;{{ pay_amount }}</strong> to {{ pay_payee }}.</p>
+        {% if pay_qr %}
+          <div class="mb-2">{{ pay_qr|safe }}</div>
+          <p class="text-muted small">Scan this with any UPI app on your phone.</p>
+        {% endif %}
+        <p class="mb-3"><a href="{{ pay_link }}">Open your UPI app</a> (works on a phone).</p>
+        {% if payment and payment.status == 'rejected' %}
+          <div class="alert alert-warning">
+            That reference could not be matched. Check it in your UPI app and send it again.
+          </div>
+        {% endif %}
+        <form method="post" action="{{ pay_action }}" class="row g-2 align-items-end">
+          <div class="col-sm-7">
+            <label class="form-label">Paid? Type the 12-digit UPI reference</label>
+            <input class="form-control" type="text" name="ref" inputmode="numeric"
+                   pattern="[0-9]{12}" placeholder="e.g. 418293047561" required />
+          </div>
+          <div class="col-sm-5">
+            <button class="btn btn-primary w-100">I have paid</button>
+          </div>
+        </form>
+        {% if pay_error %}<p class="text-muted small mt-2">{{ pay_error }}</p>{% endif %}
+      {% elif payment.status == 'claimed' %}
+        <h2>Payment sent</h2>
+        <p class="mb-0">
+          Reference <strong>{{ payment.claimed_ref }}</strong> is with {{ pay_payee }} to check.
+        </p>
+      {% else %}
+        <h2>Payment received</h2>
+        <p class="mb-0">{{ pay_payee }} confirmed reference <strong>{{ payment.claimed_ref }}</strong>.</p>
+      {% endif %}
+
+      <p class="text-muted small mt-3 mb-0">
+        You are paying {{ pay_payee }} directly by UPI. This is not a card payment,
+        there is no refund button, and nobody here can reverse it — keep your
+        reference number.
+      </p>
+
+    {% elif payment and payment.status == 'claimed' %}
+      <h2>Check this payment</h2>
+      <p class="mb-2">
+        The customer says they sent <strong>&#8377;{{ payment.amount }}</strong>,
+        reference <strong>{{ payment.claimed_ref }}</strong>.
+      </p>
+      <p class="text-muted small mb-3">
+        Open your own UPI app and look for it. Only you can tell whether the money
+        arrived — the app has no way to check.
+      </p>
+      <div class="d-flex gap-2">
+        <form method="post" action="{{ pay_verify_action }}">
+          <button class="btn btn-sm btn-primary">Money arrived</button>
+        </form>
+        <form method="post" action="{{ pay_reject_action }}">
+          <button class="btn btn-sm btn-outline-secondary">Not received</button>
+        </form>
+      </div>
+
+    {% elif payment and payment.status == 'verified' %}
+      <h2>Paid</h2>
+      <p class="mb-0">You confirmed reference <strong>{{ payment.claimed_ref }}</strong>.</p>
+    {% else %}
+      <h2>Not paid yet</h2>
+      <p class="mb-0 text-muted">Nothing claimed against this one.</p>
+    {% endif %}
+  </div>
+{% endif %}

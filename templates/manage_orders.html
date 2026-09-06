@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Order queue{% endblock %}
+{% block content %}
+<header class="page-head">
+  <p class="eyebrow">Owner · oldest first</p>
+  <h1 class="h4 mb-0">Order queue</h1>
+</header>
+
+    <table class="table align-middle">
+      <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th class="text-end">Total</th><th>Status</th><th>Payment</th><th></th></tr></thead>
+      <tbody>
+        {% for o in orders %}
+          <tr>
+            <td class="text-muted">#{{ o.id }}</td>
+            <td>{{ o.customer }}
+              <div class="text-muted small">
+                {% if o.fulfillment == 'delivery' %}Delivery &middot; {{ o.address }}
+                {% elif o.fulfillment == 'table' %}Table {{ o.table_no }}
+                {% else %}Pickup &middot; {{ o.pickup_time }}{% endif %}
+              </div>
+            </td>
+            <td>{{ o.summary }}</td>
+            <td class="text-end">&#8377;{{ o.total }}</td>
+            <td>
+              {% if o.status == 'completed' %}<span class="badge bg-success">Completed</span>
+              {% elif o.status == 'ready' %}<span class="badge bg-success">Ready / out for delivery</span>
+              {% elif o.status == 'preparing' %}<span class="badge bg-info text-dark">Preparing</span>
+              {% else %}<span class="badge bg-secondary">Placed</span>{% endif %}
+            </td>
+            <td>
+              {# The money can lag the food — an order may be Ready and still
+                 Due. The status column is the kitchen; this one is the till. #}
+              {% set p = paid.get(o.id) %}
+              {% if p and p.status == 'verified' %}
+                <span class="badge bg-success">Paid &middot; {{ 'UPI' if p.claimed_ref else 'cash' }}</span>
+              {% elif p and p.status == 'claimed' %}
+                <span class="badge bg-warning text-dark">UPI &middot; check below</span>
+              {% else %}
+                <span class="badge bg-secondary">Due{% if o.pay_method %} &middot; {{ o.pay_method }}{% endif %}</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              {% if o.status != 'ready' %}
+              {% if o.status != 'completed' %}
+               <form method="post" action="/manage/orders/{{ o.id }}/advance" class="d-inline">
+                 <button class="btn btn-sm btn-outline-primary">
+                   {{ 'Start preparing' if o.status == 'placed' else ('Mark ready / out for delivery' if o.status == 'preparing' else 'Mark completed') }}
+                 </button>
+               </form>
+              {% endif %}
+              {% if not (paid.get(o.id) and paid[o.id].status == 'verified') %}
+                <form method="post" action="/manage/orders/{{ o.id }}/cash" class="d-inline">
+                  <button class="btn btn-sm btn-outline-success">Cash received</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="7" class="text-muted">No orders yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {# Every order that has a payment against it, in the partial's owner mode.
+       {% with %} names the one payment each panel is about. Claimed ones show
+       the two decision buttons; verified ones just read Paid. #}
+    {% for o in orders %}
+      {% if paid.get(o.id) %}
+        {% with payment = paid[o.id], mode = 'owner',
+                pay_verify_action = '/manage/payments/' ~ paid[o.id].id ~ '/verify',
+                pay_reject_action = '/manage/payments/' ~ paid[o.id].id ~ '/reject' %}
+          {% include "_pay.html" %}
+        {% endwith %}
+      {% endif %}
+    {% endfor %}
+{% endblock %}

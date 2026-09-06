@@ -1,0 +1,4 @@
+# Minimal Supabase configuration. The GitHub integration reads this to
+# know it has found a Supabase directory; the project ref is set when
+# you connect the repository in the Supabase dashboard.
+project_id = "haldiram"

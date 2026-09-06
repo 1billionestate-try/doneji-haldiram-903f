@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Menu{% endblock %}
+{% block content %}
+<header class="ds-hero">
+  <p class="eyebrow">Fresh from the counter</p>
+  <h1 class="h4 mb-1">Today's menu</h1>
+  <p class="sub mb-0">Pick what you like — the kitchen sees your order the moment you place it.</p>
+</header>
+
+    <div class="mb-3">
+      <a class="btn btn-sm {{ 'btn-primary' if not active else 'btn-outline-secondary' }}" href="/">All</a>
+      {% for c in categories %}
+        <a class="btn btn-sm {{ 'btn-primary' if active == c.category else 'btn-outline-secondary' }}"
+           href="/?category={{ c.category }}">{{ c.category }}</a>
+      {% endfor %}
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="row g-4">
+          {% for i in items %}
+            <div class="col-md-6">
+              <div class="card ds-lift h-100">
+                {# Three rungs, in order of trust: the owner's own pasted
+                   photo; the platform's VERIFIED photo for a dish everyone
+                   recognises (photos.py); the neutral initial tile. Never a
+                   random stock photo — picsum's catalogue once put Times
+                   Square on a Masala Dosa card, and on a food menu an
+                   unrelated photo is worse than none. #}
+                {% if i.image_url %}
+                  <img class="ds-photo" src="{{ i.image_url }}" alt="{{ i.name }}" loading="lazy" />
+                {% elif stock_photo is defined and stock_photo(i.name) %}
+                  <img class="ds-photo" src="{{ stock_photo(i.name) }}" alt="{{ i.name }}" loading="lazy" />
+                {% else %}
+                  <svg class="ds-photo" viewBox="0 0 640 360" aria-hidden="true">
+                    <rect width="640" height="360" fill="var(--app-accent-soft)" />
+                    <text x="320" y="180" text-anchor="middle" dominant-baseline="central"
+                          font-size="120" font-weight="700" font-family="inherit"
+                          fill="var(--app-accent)">{{ i.name[:1]|upper }}</text>
+                  </svg>
+                {% endif %}
+                <div class="card-body d-flex align-items-start justify-content-between gap-2">
+                  <div>
+                    <h2 class="h6 card-title mb-1">{{ i.name }}</h2>
+                    <p class="text-muted small mb-0">{{ i.category }} · &#8377;{{ i.price }}</p>
+                  </div>
+                  <form method="post" action="/cart/add/{{ i.id }}" class="d-inline">
+                    <button class="btn btn-sm btn-primary">Add</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="col-12"><p class="text-muted">Nothing on the menu yet.</p></div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card card-body">
+          <h2 class="h6">Your cart</h2>
+          {% for line in cart %}
+            <p class="mb-1 d-flex justify-content-between">
+              <span>{{ line.name }} &times;{{ line.qty }}</span>
+              <span>&#8377;{{ line.line_total }}</span>
+            </p>
+          {% else %}
+            <p class="text-muted mb-1">Empty — add something from the menu.</p>
+          {% endfor %}
+          {% if cart %}
+            <hr class="my-2" />
+            <p class="d-flex justify-content-between fw-bold"><span>Total</span><span>&#8377;{{ cart_total }}</span></p>
+            <div class="d-grid gap-2">
+              <a class="btn btn-primary" href="/checkout">Go to checkout</a>
+            </div>
+            <form method="post" action="/cart/clear" class="d-grid mt-2">
+              <button class="btn btn-sm btn-outline-secondary">Clear cart</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+{% endblock %}
